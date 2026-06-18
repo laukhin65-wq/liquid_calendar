@@ -37,6 +37,7 @@ class ThemeSettingsScreen extends StatelessWidget {
             child: _ThemeTile(
               choice: choice,
               selected: provider.choice == choice,
+              glass: glass,
               textColor: textColor,
               subtitleColor: subtitleColor,
               onTap: () => context.read<ThemeProvider>().setChoice(choice),
@@ -63,6 +64,7 @@ class ThemeSettingsScreen extends StatelessWidget {
 class _ThemeTile extends StatelessWidget {
   final AppThemeChoice choice;
   final bool selected;
+  final bool glass;
   final VoidCallback onTap;
   final Color textColor;
   final Color subtitleColor;
@@ -70,6 +72,7 @@ class _ThemeTile extends StatelessWidget {
   const _ThemeTile({
     required this.choice,
     required this.selected,
+    required this.glass,
     required this.onTap,
     required this.textColor,
     required this.subtitleColor,
@@ -77,7 +80,6 @@ class _ThemeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glass = context.watch<ThemeProvider>().isGlass;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
 

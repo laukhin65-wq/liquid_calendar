@@ -48,12 +48,7 @@ class _LifeScreenState extends State<LifeScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
-    _stats = _service.calculate();
-    _loadCategoryStats();
-    _loadPeopleStats();
-    _loadLocationStats();
-    _loadTodayStats();
-    _loadWeekStats();
+    _loadAllStats();
   }
 
   @override
@@ -62,33 +57,20 @@ class _LifeScreenState extends State<LifeScreen>
     super.dispose();
   }
 
+  void _loadAllStats() {
+    setState(() {
+      _stats = _service.calculate();
+      _categoryStats = _categoryService.calculate(_selectedPeriod);
+      _peopleStats = _peopleService.calculate();
+      _locationStats = _locationService.calculate();
+      _todayStats = _todayService.calculate();
+      _weekStats = _weekService.calculate();
+    });
+  }
+
   void _loadCategoryStats() {
     setState(() {
       _categoryStats = _categoryService.calculate(_selectedPeriod);
-    });
-  }
-
-  void _loadPeopleStats() {
-    setState(() {
-      _peopleStats = _peopleService.calculate();
-    });
-  }
-
-  void _loadLocationStats() {
-    setState(() {
-      _locationStats = _locationService.calculate();
-    });
-  }
-
-  void _loadTodayStats() {
-    setState(() {
-      _todayStats = _todayService.calculate();
-    });
-  }
-
-  void _loadWeekStats() {
-    setState(() {
-      _weekStats = _weekService.calculate();
     });
   }
 
