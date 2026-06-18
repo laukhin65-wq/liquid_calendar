@@ -349,4 +349,135 @@ void main() {
       expect(provider.events.length, 2);
     });
   });
+
+  group('CalendarProvider — navigation methods', () {
+    test('goPrevious day view moves back one day', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.day);
+      provider.setDate(DateTime(2025, 1, 15));
+      provider.goPrevious();
+      expect(provider.selectedDate, DateTime(2025, 1, 14));
+    });
+
+    test('goNext day view moves forward one day', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.day);
+      provider.setDate(DateTime(2025, 1, 15));
+      provider.goNext();
+      expect(provider.selectedDate, DateTime(2025, 1, 16));
+    });
+
+    test('goPrevious week view moves back 7 days', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.week);
+      provider.setDate(DateTime(2025, 1, 15));
+      provider.goPrevious();
+      expect(provider.selectedDate, DateTime(2025, 1, 8));
+    });
+
+    test('goNext week view moves forward 7 days', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.week);
+      provider.setDate(DateTime(2025, 1, 15));
+      provider.goNext();
+      expect(provider.selectedDate, DateTime(2025, 1, 22));
+    });
+
+    test('goPrevious month view moves to previous month', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.month);
+      provider.setDate(DateTime(2025, 3, 15));
+      provider.goPrevious();
+      expect(provider.selectedDate.month, 2);
+      expect(provider.selectedDate.year, 2025);
+    });
+
+    test('goNext month view moves to next month', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.month);
+      provider.setDate(DateTime(2025, 1, 15));
+      provider.goNext();
+      expect(provider.selectedDate.month, 2);
+      expect(provider.selectedDate.year, 2025);
+    });
+
+    test('goPrevious year view moves to previous year', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.year);
+      provider.setDate(DateTime(2025, 6, 15));
+      provider.goPrevious();
+      expect(provider.selectedDate.year, 2024);
+    });
+
+    test('goNext year view moves to next year', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.year);
+      provider.setDate(DateTime(2025, 6, 15));
+      provider.goNext();
+      expect(provider.selectedDate.year, 2026);
+    });
+
+    test('goPrevious month handles year boundary', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.month);
+      provider.setDate(DateTime(2025, 1, 15));
+      provider.goPrevious();
+      expect(provider.selectedDate.month, 12);
+      expect(provider.selectedDate.year, 2024);
+    });
+
+    test('goNext month handles year boundary', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.month);
+      provider.setDate(DateTime(2025, 12, 15));
+      provider.goNext();
+      expect(provider.selectedDate.month, 1);
+      expect(provider.selectedDate.year, 2026);
+    });
+
+    test('goPrevious month clamps day for shorter months', () {
+      final provider = CalendarProvider();
+      provider.setView(CalendarViewType.month);
+      provider.setDate(DateTime(2025, 3, 31));
+      provider.goPrevious();
+      expect(provider.selectedDate.day, 28);
+      expect(provider.selectedDate.month, 2);
+    });
+  });
+
+  group('CalendarProvider — visibleCategoryIndices', () {
+    test('visibleCategoryIndices returns all when none hidden', () {
+      final provider = CalendarProvider();
+      final indices = provider.visibleCategoryIndices;
+      expect(indices.length, EventCategory.values.length);
+    });
+
+    test('visibleCategoryIndices excludes hidden', () {
+      final provider = CalendarProvider();
+      provider.toggleCategory(EventCategory.work);
+      final indices = provider.visibleCategoryIndices;
+      expect(indices.contains(EventCategory.work.index), isFalse);
+    });
+  });
+
+  group('CalendarProvider — event properties', () {
+    test('getEventById returns event when exists', () {
+      final provider = CalendarProvider();
+      final eventsBox = Hive.box<CalendarEvent>('events');
+
+      eventsBox.put('1', CalendarEvent(
+        id: '1',
+        title: 'Found',
+        start: DateTime(2025, 1, 15),
+        end: DateTime(2025, 1, 15, 1),
+        color: 0,
+        repeatType: RepeatType.none,
+        category: EventCategory.work,
+      ));
+
+      final event = provider.getEventById('1');
+      expect(event, isNotNull);
+      expect(event!.title, 'Found');
+    });
+  });
 }
