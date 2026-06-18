@@ -41,6 +41,15 @@ class _WeekGrid extends StatelessWidget {
 
     final days = List.generate(7, (i) => monday.add(Duration(days: i)));
 
+    final eventsByDay = <DateTime, List<CalendarEvent>>{};
+    for (final day in days) {
+      eventsByDay[day] = provider.filteredEvents
+          .where((e) => e.isVisibleOnDate(day))
+          .toList();
+    }
+
+    final now = DateTime.now();
+
     return Column(
       children: [
         // Заголовок недели с датами
@@ -48,16 +57,13 @@ class _WeekGrid extends StatelessWidget {
           children: [
             const SizedBox(width: _timeGutter),
             ...days.map((day) {
-              final now = DateTime.now();
               final isToday = now.year == day.year &&
                   now.month == day.month &&
                   now.day == day.day;
               final isSelected = selected.year == day.year &&
                   selected.month == day.month &&
                   selected.day == day.day;
-              final dayEvents = provider.filteredEvents
-                  .where((e) => e.isVisibleOnDate(day))
-                  .toList();
+              final dayEvents = eventsByDay[day] ?? [];
               final hasHoliday = dayEvents.any((e) => e.category == EventCategory.holiday);
 
               return Expanded(
@@ -141,7 +147,7 @@ class _WeekGrid extends StatelessWidget {
                   // 7 колонок дней
                   ...days.map((day) {
                     return Expanded(
-                      child: _DayColumn(day: day),
+                      child: _DayColumn(day: day, events: eventsByDay[day] ?? []),
                     );
                   }),
                 ],
@@ -156,17 +162,15 @@ class _WeekGrid extends StatelessWidget {
 
 class _DayColumn extends StatelessWidget {
   final DateTime day;
+  final List<CalendarEvent> events;
 
-  const _DayColumn({required this.day});
+  const _DayColumn({required this.day, required this.events});
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CalendarProvider>();
     final dayStart = DateTime(day.year, day.month, day.day);
     final dayEnd = dayStart.add(const Duration(days: 1));
-
-    final events =
-        provider.filteredEvents.where((event) => event.isVisibleOnDate(day)).toList();
 
     return Container(
       decoration: BoxDecoration(

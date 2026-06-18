@@ -62,6 +62,20 @@ class _MiniMonth extends StatelessWidget {
     final startOffset = firstWeekday - 1;
     final isCurrentMonth = now.year == year && now.month == month;
 
+    final datesWithEvents = <int>{};
+    final datesWithHolidays = <int>{};
+    for (final event in provider.filteredEvents) {
+      for (int day = 1; day <= daysInMonth; day++) {
+        final date = DateTime(year, month, day);
+        if (event.isVisibleOnDate(date)) {
+          datesWithEvents.add(day);
+          if (event.category == EventCategory.holiday) {
+            datesWithHolidays.add(day);
+          }
+        }
+      }
+    }
+
     return GestureDetector(
       onTap: () {
         setZoomAnchor(context); // запомнить точку тапа для zoom-наезда
@@ -107,12 +121,9 @@ class _MiniMonth extends StatelessWidget {
                         return const Expanded(child: SizedBox());
                       }
 
-                      final date = DateTime(year, month, dayNumber);
                       final isToday = isCurrentMonth && now.day == dayNumber;
-                      final hasEvents = provider.filteredEvents
-                          .any((event) => event.isVisibleOnDate(date));
-                      final hasHoliday = provider.filteredEvents
-                          .any((event) => event.isVisibleOnDate(date) && event.category == EventCategory.holiday);
+                      final hasEvents = datesWithEvents.contains(dayNumber);
+                      final hasHoliday = datesWithHolidays.contains(dayNumber);
                       final isWeekend = col >= 5;
 
                       return Expanded(
