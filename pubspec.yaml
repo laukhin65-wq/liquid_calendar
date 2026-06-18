@@ -49,7 +49,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/fonts
+    - assets/fonts/
 
 
 flutter_launcher_icons:
