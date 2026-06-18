@@ -182,7 +182,7 @@ class _SearchScreenState extends State<SearchScreen> {
           Expanded(
             child: ListView.separated(
               itemCount: results.length,
-              separatorBuilder: (_, __) => Divider(
+              separatorBuilder: (_, _) => Divider(
                 height: 1,
                 color: dividerColor,
                 indent: 72,
