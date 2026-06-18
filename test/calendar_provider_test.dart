@@ -1,13 +1,23 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_test/hive_test.dart';
 import 'package:liquid_calendar/data/models/calendar_event.dart';
 import 'package:liquid_calendar/data/models/event_category.dart';
 import 'package:liquid_calendar/data/models/repeat_type.dart';
+import 'package:liquid_calendar/data/models/reminder_offset.dart';
 import 'package:liquid_calendar/providers/calendar_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  final widgetChannel = MethodChannel('com.example.liquid_calendar/widget');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(widgetChannel, (call) async => null);
+
+  final alarmChannel = MethodChannel('dev.fluttercommunity.plus/android_alarm_manager');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(alarmChannel, (call) async => true);
 
   setUp(() async {
     await setUpTestHive();
@@ -128,6 +138,215 @@ void main() {
 
       expect(provider.filteredEvents.length, 1);
       expect(provider.filteredEvents.first.title, 'Sport Event');
+    });
+  });
+
+  group('CalendarProvider — addEvent', () {
+    test('addEvent creates event in Hive', () async {
+      final provider = CalendarProvider();
+      await provider.addEvent(
+        title: 'Test Event',
+        start: DateTime(2025, 1, 15, 10, 0),
+        end: DateTime(2025, 1, 15, 11, 0),
+        repeatType: RepeatType.none,
+        category: EventCategory.work,
+      );
+
+      expect(provider.events.length, 1);
+      expect(provider.events.first.title, 'Test Event');
+    });
+
+    test('addEvent throws when end is before start', () async {
+      final provider = CalendarProvider();
+      expect(
+        () => provider.addEvent(
+          title: 'Bad Event',
+          start: DateTime(2025, 1, 15, 11, 0),
+          end: DateTime(2025, 1, 15, 10, 0),
+          repeatType: RepeatType.none,
+          category: EventCategory.work,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('addEvent throws when end equals start', () async {
+      final provider = CalendarProvider();
+      final sameTime = DateTime(2025, 1, 15, 10, 0);
+      expect(
+        () => provider.addEvent(
+          title: 'Bad Event',
+          start: sameTime,
+          end: sameTime,
+          repeatType: RepeatType.none,
+          category: EventCategory.work,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('addEvent with all optional parameters', () async {
+      final provider = CalendarProvider();
+      await provider.addEvent(
+        title: 'Full Event',
+        start: DateTime(2025, 1, 15, 10, 0),
+        end: DateTime(2025, 1, 15, 11, 0),
+        repeatType: RepeatType.weekly,
+        category: EventCategory.personal,
+        reminder: ReminderOffset.min15,
+        color: 0xFF0000FF,
+        location: 'Office',
+        locationLatitude: 55.75,
+        locationLongitude: 37.62,
+        description: 'Meeting',
+        contacts: ['Alice'],
+        attachments: ['file.pdf'],
+        timeZoneOffset: 180,
+        birthdayReminders: '0:9:0',
+        dueDate: DateTime(2025, 1, 20),
+      );
+
+      expect(provider.events.length, 1);
+      final event = provider.events.first;
+      expect(event.title, 'Full Event');
+      expect(event.location, 'Office');
+      expect(event.description, 'Meeting');
+      expect(event.contacts, ['Alice']);
+    });
+  });
+
+  group('CalendarProvider — deleteEvent', () {
+    test('deleteEvent removes event from Hive', () async {
+      final provider = CalendarProvider();
+      final eventsBox = Hive.box<CalendarEvent>('events');
+
+      eventsBox.put('1', CalendarEvent(
+        id: '1',
+        title: 'To Delete',
+        start: DateTime(2025, 1, 15),
+        end: DateTime(2025, 1, 15, 1),
+        color: 0,
+        repeatType: RepeatType.none,
+        category: EventCategory.work,
+      ));
+
+      expect(provider.events.length, 1);
+      await provider.deleteEvent('1');
+      expect(provider.events.length, 0);
+    });
+
+    test('deleteEvent with non-existent id does not throw', () async {
+      final provider = CalendarProvider();
+      await provider.deleteEvent('nonexistent');
+      expect(provider.events.length, 0);
+    });
+  });
+
+  group('CalendarProvider — updateEvent', () {
+    test('updateEvent saves changes', () async {
+      final provider = CalendarProvider();
+      final eventsBox = Hive.box<CalendarEvent>('events');
+
+      final event = CalendarEvent(
+        id: '1',
+        title: 'Original',
+        start: DateTime(2025, 1, 15),
+        end: DateTime(2025, 1, 15, 1),
+        color: 0,
+        repeatType: RepeatType.none,
+        category: EventCategory.work,
+      );
+      eventsBox.put('1', event);
+
+      event.title = 'Updated';
+      await provider.updateEvent(event);
+
+      expect(provider.getEventById('1')!.title, 'Updated');
+    });
+  });
+
+  group('CalendarProvider — toggleTaskCompletion', () {
+    test('toggleTaskCompletion toggles isCompleted', () async {
+      final provider = CalendarProvider();
+      final eventsBox = Hive.box<CalendarEvent>('events');
+
+      final event = CalendarEvent(
+        id: '1',
+        title: 'Task',
+        start: DateTime(2025, 1, 15),
+        end: DateTime(2025, 1, 15, 1),
+        color: 0,
+        repeatType: RepeatType.none,
+        category: EventCategory.task,
+        isCompleted: false,
+      );
+      eventsBox.put('1', event);
+
+      expect(event.isCompleted, isFalse);
+      await provider.toggleTaskCompletion(event);
+      expect(event.isCompleted, isTrue);
+      await provider.toggleTaskCompletion(event);
+      expect(event.isCompleted, isFalse);
+    });
+  });
+
+  group('CalendarProvider — eventsForDate', () {
+    test('eventsForDate returns events for specific date', () {
+      final provider = CalendarProvider();
+      final eventsBox = Hive.box<CalendarEvent>('events');
+
+      eventsBox.put('1', CalendarEvent(
+        id: '1',
+        title: 'Jan 15',
+        start: DateTime(2025, 1, 15, 10, 0),
+        end: DateTime(2025, 1, 15, 11, 0),
+        color: 0,
+        repeatType: RepeatType.none,
+        category: EventCategory.work,
+      ));
+
+      eventsBox.put('2', CalendarEvent(
+        id: '2',
+        title: 'Jan 16',
+        start: DateTime(2025, 1, 16, 10, 0),
+        end: DateTime(2025, 1, 16, 11, 0),
+        color: 0,
+        repeatType: RepeatType.none,
+        category: EventCategory.work,
+      ));
+
+      final jan15Events = provider.eventsForDate(DateTime(2025, 1, 15));
+      expect(jan15Events.length, 1);
+      expect(jan15Events.first.title, 'Jan 15');
+    });
+  });
+
+  group('CalendarProvider — cache invalidation', () {
+    test('events cache is invalidated after addEvent', () async {
+      final provider = CalendarProvider();
+      final eventsBox = Hive.box<CalendarEvent>('events');
+
+      expect(provider.events.length, 0);
+
+      eventsBox.put('1', CalendarEvent(
+        id: '1',
+        title: 'Direct Put',
+        start: DateTime(2025, 1, 15),
+        end: DateTime(2025, 1, 15, 1),
+        color: 0,
+        repeatType: RepeatType.none,
+        category: EventCategory.work,
+      ));
+
+      await provider.addEvent(
+        title: 'Via Provider',
+        start: DateTime(2025, 1, 16),
+        end: DateTime(2025, 1, 16, 1),
+        repeatType: RepeatType.none,
+        category: EventCategory.work,
+      );
+
+      expect(provider.events.length, 2);
     });
   });
 }

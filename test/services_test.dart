@@ -25,7 +25,7 @@ void main() {
     await tearDownTestHive();
   });
 
-  CalendarEvent _createEvent({
+  CalendarEvent createEvent({
     String? id,
     String title = 'Test Event',
     DateTime? start,
@@ -56,18 +56,18 @@ void main() {
 
     test('calculate groups events by category', () {
       final box = Hive.box<CalendarEvent>('events');
-      box.put('1', _createEvent(
+      box.put('1', createEvent(
         category: EventCategory.work,
         start: DateTime(2025, 1, 15, 10, 0),
         end: DateTime(2025, 1, 15, 12, 0),
       ));
-      box.put('2', _createEvent(
+      box.put('2', createEvent(
         id: '2',
         category: EventCategory.work,
         start: DateTime(2025, 1, 16, 10, 0),
         end: DateTime(2025, 1, 16, 11, 0),
       ));
-      box.put('3', _createEvent(
+      box.put('3', createEvent(
         id: '3',
         category: EventCategory.sport,
         start: DateTime(2025, 1, 17, 10, 0),
@@ -83,7 +83,7 @@ void main() {
 
     test('calculate excludes holidays', () {
       final box = Hive.box<CalendarEvent>('events');
-      box.put('1', _createEvent(category: EventCategory.holiday));
+      box.put('1', createEvent(category: EventCategory.holiday));
 
       final service = CategoryAnalyticsService();
       final model = service.calculate(AnalyticsPeriod.allTime);
@@ -105,7 +105,7 @@ void main() {
       final now = DateTime.now();
       final box = Hive.box<CalendarEvent>('events');
 
-      box.put('1', _createEvent(
+      box.put('1', createEvent(
         title: 'Today Event',
         start: DateTime(now.year, now.month, now.day, 10, 0),
         end: DateTime(now.year, now.month, now.day, 11, 0),
@@ -121,14 +121,14 @@ void main() {
       final now = DateTime.now();
       final box = Hive.box<CalendarEvent>('events');
 
-      box.put('1', _createEvent(
+      box.put('1', createEvent(
         title: 'Task 1',
         category: EventCategory.task,
         start: DateTime(now.year, now.month, now.day, 10, 0),
         end: DateTime(now.year, now.month, now.day, 11, 0),
       ));
 
-      box.put('2', _createEvent(
+      box.put('2', createEvent(
         id: '2',
         title: 'Task 2',
         category: EventCategory.task,
@@ -157,7 +157,7 @@ void main() {
       final weekStart = now.subtract(Duration(days: now.weekday - 1));
       final box = Hive.box<CalendarEvent>('events');
 
-      box.put('1', _createEvent(
+      box.put('1', createEvent(
         title: 'Week Event',
         start: DateTime(weekStart.year, weekStart.month, weekStart.day, 10, 0),
         end: DateTime(weekStart.year, weekStart.month, weekStart.day, 11, 0),
