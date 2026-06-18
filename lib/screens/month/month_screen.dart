@@ -30,9 +30,23 @@ class _MonthGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<CalendarProvider>();
     final firstWeekday = DateTime(date.year, date.month, 1).weekday;
     final daysInMonth = DateTime(date.year, date.month + 1, 0).day;
     final startOffset = firstWeekday - 1;
+
+    final eventsByDay = <int, List<CalendarEvent>>{};
+    for (final event in provider.filteredEvents) {
+      for (int day = 1; day <= daysInMonth; day++) {
+        final cellDate = DateTime(date.year, date.month, day);
+        if (event.isVisibleOnDate(cellDate)) {
+          eventsByDay.putIfAbsent(day, () => []).add(event);
+        }
+      }
+    }
+    for (final entry in eventsByDay.entries) {
+      entry.value.sort((a, b) => a.start.compareTo(b.start));
+    }
 
     return Column(
       children: [
@@ -63,7 +77,10 @@ class _MonthGrid extends StatelessWidget {
                             DateTime(date.year, date.month, dayNumber);
 
                         return Expanded(
-                          child: _DayCell(date: cellDate),
+                          child: _DayCell(
+                            date: cellDate,
+                            events: eventsByDay[dayNumber] ?? const [],
+                          ),
                         );
                       }),
                     ),
@@ -112,18 +129,14 @@ class _WeekDaysHeader extends StatelessWidget {
 
 class _DayCell extends StatelessWidget {
   final DateTime date;
+  final List<CalendarEvent> events;
 
-  const _DayCell({required this.date});
+  const _DayCell({required this.date, required this.events});
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CalendarProvider>();
     final scheme = Theme.of(context).colorScheme;
-
-    final events = provider.filteredEvents
-        .where((event) => event.isVisibleOnDate(date))
-        .toList()
-      ..sort((a, b) => a.start.compareTo(b.start));
 
     final now = DateTime.now();
     final isToday = _sameDay(now, date);

@@ -6,8 +6,21 @@ import '../widgets/glass.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 import '../data/models/event_category.dart';
+import '../data/models/calendar_event.dart';
 
 import 'dart:async';
+
+class _SearchResult {
+  final CalendarEvent event;
+  final double score;
+  final bool matches;
+
+  const _SearchResult({
+    required this.event,
+    required this.score,
+    required this.matches,
+  });
+}
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -55,7 +68,9 @@ class _SearchScreenState extends State<SearchScreen> {
     final subtitleColor = isDark ? Colors.white60 : Colors.black54;
     final dividerColor = isDark ? Colors.white12 : Colors.black12;
 
-    final results = provider.filteredEvents.where((event) {
+    final q = query.toLowerCase();
+
+    final scored = provider.filteredEvents.map((event) {
       final title = event.title.toLowerCase();
 
       final date = '${event.start.day.toString().padLeft(2, '0')}.'
@@ -65,35 +80,35 @@ class _SearchScreenState extends State<SearchScreen> {
       final time = '${event.start.hour.toString().padLeft(2, '0')}:'
           '${event.start.minute.toString().padLeft(2, '0')}';
 
-      final q = query.toLowerCase();
+      double score = 0;
+      bool matches = true;
 
       if (q.isEmpty) {
-        return true;
+        score = 1.0;
+      } else {
+        if (title.contains(q) ||
+            categoryName(event.category).toLowerCase().contains(q) ||
+            date.contains(q) ||
+            time.contains(q)) {
+          score = 1.0;
+        } else {
+          score = title.similarityTo(q);
+          matches = score > 0.35;
+        }
       }
 
-      if (title.contains(q) ||
-          categoryName(event.category).toLowerCase().contains(q) ||
-          date.contains(q) ||
-          time.contains(q)) {
-        return true;
-      }
+      return _SearchResult(event: event, score: score, matches: matches);
+    }).where((r) => r.matches).toList();
 
-      final similarity = title.similarityTo(q);
-      return similarity > 0.35;
-    }).toList();
-
-    results.sort((a, b) {
-      final aStarts = a.title.toLowerCase().startsWith(query.toLowerCase());
-      final bStarts = b.title.toLowerCase().startsWith(query.toLowerCase());
-
+    scored.sort((a, b) {
+      final aStarts = a.event.title.toLowerCase().startsWith(q);
+      final bStarts = b.event.title.toLowerCase().startsWith(q);
       if (aStarts && !bStarts) return -1;
       if (!aStarts && bStarts) return 1;
-
-      final aScore = a.title.toLowerCase().similarityTo(query.toLowerCase());
-      final bScore = b.title.toLowerCase().similarityTo(query.toLowerCase());
-
-      return bScore.compareTo(aScore);
+      return b.score.compareTo(a.score);
     });
+
+    final results = scored.map((r) => r.event).toList();
 
     final searchField = glass
         ? GlassContainer(

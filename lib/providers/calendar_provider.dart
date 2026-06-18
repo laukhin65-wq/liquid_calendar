@@ -24,8 +24,18 @@ class CalendarProvider extends ChangeNotifier {
   final Box<CalendarEvent> _eventsBox = Hive.box<CalendarEvent>('events');
   final Box _settingsBox = Hive.box('settings');
 
-  List<CalendarEvent> get events =>
-      _eventsBox.values.toList();
+  List<CalendarEvent>? _eventsCache;
+  List<CalendarEvent>? _filteredEventsCache;
+  bool _eventsDirty = true;
+  bool _filteredEventsDirty = true;
+
+  List<CalendarEvent> get events {
+    if (_eventsDirty) {
+      _eventsCache = _eventsBox.values.toList();
+      _eventsDirty = false;
+    }
+    return _eventsCache!;
+  }
 
   CalendarEvent? getEventById(String id) => _eventsBox.get(id);
 
@@ -43,8 +53,13 @@ class CalendarProvider extends ChangeNotifier {
   bool isCategoryVisible(EventCategory cat) =>
       _visibleCategoryIndices == null || _visibleCategoryIndices!.contains(cat.index);
 
-  List<CalendarEvent> get filteredEvents =>
-      events.where((e) => isCategoryVisible(e.category)).toList();
+  List<CalendarEvent> get filteredEvents {
+    if (_filteredEventsDirty) {
+      _filteredEventsCache = events.where((e) => isCategoryVisible(e.category)).toList();
+      _filteredEventsDirty = false;
+    }
+    return _filteredEventsCache!;
+  }
 
   List<CalendarEvent> eventsForDate(DateTime date) =>
       filteredEvents.where((e) => e.isVisibleOnDate(date)).toList();
@@ -62,12 +77,14 @@ class CalendarProvider extends ChangeNotifier {
       }
     }
     _settingsBox.put(_filterKey, _visibleCategoryIndices!.toList());
+    _filteredEventsDirty = true;
     notifyListeners();
   }
 
   void setAllCategoriesVisible() {
     _visibleCategoryIndices = null;
     _settingsBox.delete(_filterKey);
+    _filteredEventsDirty = true;
     notifyListeners();
   }
 
@@ -239,8 +256,14 @@ class CalendarProvider extends ChangeNotifier {
   Future<void> _saveAndNotify(CalendarEvent event) async {
     await _eventsBox.put(event.id, event);
     await _scheduleReminder(event);
+    _invalidateCaches();
     notifyListeners();
     WidgetService.updateWidget();
+  }
+
+  void _invalidateCaches() {
+    _eventsDirty = true;
+    _filteredEventsDirty = true;
   }
 
   Future<void> deleteEvent(String eventId) async {
@@ -253,6 +276,7 @@ class CalendarProvider extends ChangeNotifier {
 
     await _eventsBox.delete(eventId);
 
+    _invalidateCaches();
     notifyListeners();
     WidgetService.updateWidget();
   }
@@ -269,6 +293,7 @@ class CalendarProvider extends ChangeNotifier {
       await _scheduleReminder(event);
     }
 
+    _invalidateCaches();
     notifyListeners();
     WidgetService.updateWidget();
   }
@@ -277,6 +302,7 @@ class CalendarProvider extends ChangeNotifier {
   Future<void> toggleTaskCompletion(CalendarEvent event) async {
     event.isCompleted = !event.isCompleted;
     await event.save();
+    _invalidateCaches();
     notifyListeners();
     WidgetService.updateWidget();
   }
@@ -366,6 +392,7 @@ class CalendarProvider extends ChangeNotifier {
         }
 
         await _settingsBox.put(settingKey, true);
+        _invalidateCaches();
         notifyListeners();
         WidgetService.updateWidget();
       }
