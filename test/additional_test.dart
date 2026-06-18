@@ -8,7 +8,6 @@ import 'package:liquid_calendar/data/models/contact_model.dart';
 import 'package:liquid_calendar/data/models/location_model.dart';
 import 'package:liquid_calendar/data/models/event_category.dart';
 import 'package:liquid_calendar/data/models/repeat_type.dart';
-import 'package:liquid_calendar/data/models/life_statistics.dart';
 import 'package:liquid_calendar/services/life_statistics_service.dart';
 import 'package:liquid_calendar/models/schedule_item.dart';
 import 'package:liquid_calendar/providers/theme_provider.dart';
