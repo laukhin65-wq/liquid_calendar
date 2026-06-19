@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LIFE — Календарь жизни</string>
+    <string name="no_events">Нет событий</string>
+    <string name="shortcut_add_event">Мероприятие</string>
+    <string name="shortcut_add_event_long">Создать мероприятие</string>
+    <string name="shortcut_add_task">Задача</string>
+    <string name="shortcut_add_task_long">Создать задачу</string>
+</resources>

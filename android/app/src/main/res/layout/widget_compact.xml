@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_ios26_bg"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <!-- Левая часть: день недели + дата + события -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="top|start"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFF3344"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:textAllCaps="true" />
+
+            <TextView
+                android:id="@+id/widget_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginTop="-2dp" />
+
+            <LinearLayout
+                android:id="@+id/event_slot_0"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:background="@drawable/widget_event_bg"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:visibility="gone">
+                <ImageView android:id="@+id/dot_0" android:layout_width="4dp" android:layout_height="4dp" android:layout_marginEnd="4dp" />
+                <TextView android:id="@+id/time_0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#80FFFFFF" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:layout_marginEnd="3dp" />
+                <TextView android:id="@+id/title_0" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="#FFFFFFFF" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/event_slot_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:background="@drawable/widget_event_bg"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:visibility="gone">
+                <ImageView android:id="@+id/dot_1" android:layout_width="4dp" android:layout_height="4dp" android:layout_marginEnd="4dp" />
+                <TextView android:id="@+id/time_1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#80FFFFFF" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:layout_marginEnd="3dp" />
+                <TextView android:id="@+id/title_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="#FFFFFFFF" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/event_slot_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:background="@drawable/widget_event_bg"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:visibility="gone">
+                <ImageView android:id="@+id/dot_2" android:layout_width="4dp" android:layout_height="4dp" android:layout_marginEnd="4dp" />
+                <TextView android:id="@+id/time_2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#80FFFFFF" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:layout_marginEnd="3dp" />
+                <TextView android:id="@+id/title_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="#FFFFFFFF" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/event_slot_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:background="@drawable/widget_event_bg"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:visibility="gone">
+                <ImageView android:id="@+id/dot_3" android:layout_width="4dp" android:layout_height="4dp" android:layout_marginEnd="4dp" />
+                <TextView android:id="@+id/time_3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#80FFFFFF" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:layout_marginEnd="3dp" />
+                <TextView android:id="@+id/title_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="#FFFFFFFF" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/widget_events_text"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textColor="#80FFFFFF"
+                android:textSize="12sp"
+                android:text="@string/no_events"
+                android:gravity="top|start"
+                android:fontFamily="sans-serif-medium" />
+
+            <TextView
+                android:id="@+id/widget_more_events"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#99FFFFFF"
+                android:textSize="9sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="italic"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Правая часть: месяц + сетка календаря -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="top|start"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:id="@+id/widget_month_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFF3344"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="true" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Пн" android:textColor="#80FFFFFF" android:textSize="10sp" android:fontFamily="sans-serif-medium"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Вт" android:textColor="#80FFFFFF" android:textSize="10sp" android:fontFamily="sans-serif-medium"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Ср" android:textColor="#80FFFFFF" android:textSize="10sp" android:fontFamily="sans-serif-medium"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Чт" android:textColor="#80FFFFFF" android:textSize="10sp" android:fontFamily="sans-serif-medium"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Пт" android:textColor="#80FFFFFF" android:textSize="10sp" android:fontFamily="sans-serif-medium"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Сб" android:textColor="#FFFF3344" android:textSize="10sp" android:fontFamily="sans-serif-medium"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Вс" android:textColor="#FFFF3344" android:textSize="10sp" android:fontFamily="sans-serif-medium"/>
+            </LinearLayout>
+
+            <GridView
+                android:id="@+id/widget_month_grid"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="2dp"
+                android:numColumns="7"
+                android:verticalSpacing="10dp"
+                android:horizontalSpacing="0dp"
+                android:stretchMode="columnWidth" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/btn_add_container"
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="2dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/btn_add"
+            android:layout_width="32dp"
+            android:layout_height="20dp"
+            android:layout_gravity="top|end"
+            android:background="@drawable/widget_btn_pill"
+            android:src="@drawable/widget_ic_add"
+            android:scaleType="centerInside" />
+    </FrameLayout>
+</FrameLayout>

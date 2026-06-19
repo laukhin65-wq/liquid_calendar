@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="add_event"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_add_event"
+        android:shortcutLongLabel="@string/shortcut_add_event_long">
+        <intent
+            android:action="ADD_EVENT"
+            android:targetPackage="com.example.liquid_calendar"
+            android:targetClass="com.example.liquid_calendar.MainActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="add_task"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_add_task"
+        android:shortcutLongLabel="@string/shortcut_add_task_long">
+        <intent
+            android:action="ADD_TASK"
+            android:targetPackage="com.example.liquid_calendar"
+            android:targetClass="com.example.liquid_calendar.MainActivity" />
+    </shortcut>
+
+</shortcuts>
